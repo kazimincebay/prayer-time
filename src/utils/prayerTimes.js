@@ -10,13 +10,16 @@ export const findDistrictInfo = async (cityName) => {
     const response = await fetch(`${GITHUB_BASE_URL}/prayer-times.districts.json`);
     const districts = await response.json();
 
-    // İsme göre eşleştirme (Küçük-büyük harf duyarsız)
+    const normalize = (str) => str.toLocaleLowerCase('tr-TR').trim();
+    const searchName = normalize(cityName);
+
+    // İsme göre eşleştirme
     const match = districts.find(d =>
-      d.name.toLowerCase() === cityName.toLowerCase() ||
-      cityName.toLowerCase().includes(d.name.toLowerCase())
+      normalize(d.name) === searchName ||
+      searchName.includes(normalize(d.name))
     );
 
-    return match || { id: '15153', name: 'ÜSKÜDAR', state: 'İSTANBUL' }; // Varsayılan
+    return match || { id: '15153', name: 'ÜSKÜDAR', state: 'İSTANBUL' };
   } catch (error) {
     console.error('İlçe bilgisi bulunamadı:', error);
     return { id: '15153', name: 'ÜSKÜDAR', state: 'İSTANBUL' };
@@ -32,7 +35,7 @@ export const findDistrictInfo = async (cityName) => {
 export const fetchPrayerTimes = async (stateName, districtName) => {
   try {
     const encodedState = encodeURIComponent(stateName);
-    const encodedDistrict = encodeURIComponent(districtName.toLowerCase());
+    const encodedDistrict = encodeURIComponent(districtName); // Orijinal karakterler
     const url = `${GITHUB_BASE_URL}/data/${encodedState}/${encodedDistrict}.json`;
 
     const response = await fetch(url);
